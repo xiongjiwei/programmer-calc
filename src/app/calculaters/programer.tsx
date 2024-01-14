@@ -2,51 +2,59 @@ import React, { useState } from 'react';
 import { RadioGroup, Radio } from "@nextui-org/react";
 
 const Calculator = () => {
-    const keys = [
-        ["AND", "A", "<<", ">>", "Clear", "Bs"],
-        ["OR", "B", "(", ")", "%", "/"],
-        ["NOT", "C", "7", "8", "9", "x"],
-        ["NAND", "D", "4", "5", "6", "-"],
-        ["NOR", "E", "1", "2", "3", "+"],
-        ["XOR", "F", "+/-", "0", ".", "="]
+    enum KEY {
+        AND = "AND", NUMA = "A", LSHF = "<<", RSHF = ">>", CLEAR = "CE", BS = "Bs",
+        OR = "OR", NUMB = "B", LBRACKET = "(", RBRACKET = ")", MOD = "%", DIV = "/",
+        NOT = "NOT", NUMC = "C", NUM7 = "7", NUM8 = "8", NUM9 = "9", MUL = "X",
+        NAND = "NAND", NUMD = "D", NUM4 = "4", NUM5 = "5", NUM6 = "6", SUB = "-",
+        NOR = "NOR", NUME = "E", NUM1 = "1", NUM2 = "2", NUM3 = "3", ADD = "+",
+        XOR = "XOR", NUMF = "F", NEG = "-/+", NUM0 = "0", DOT = ".", EQUAL = "=",
+    }
+
+    const keyboard: KEY[] = [
+        KEY.AND, KEY.NUMA, KEY.LSHF, KEY.RSHF, KEY.CLEAR, KEY.BS,
+        KEY.OR, KEY.NUMB, KEY.LBRACKET, KEY.RBRACKET, KEY.MOD, KEY.DIV,
+        KEY.NOT, KEY.NUMC, KEY.NUM7, KEY.NUM8, KEY.NUM9, KEY.MUL,
+        KEY.NAND, KEY.NUMD, KEY.NUM4, KEY.NUM5, KEY.NUM6, KEY.SUB,
+        KEY.NOR, KEY.NUME, KEY.NUM1, KEY.NUM2, KEY.NUM3, KEY.ADD,
+        KEY.XOR, KEY.NUMF, KEY.NEG, KEY.NUM0, KEY.DOT, KEY.EQUAL,
     ]
 
     const hexDisableKeys: Set<string> = new Set();
-    const decimalDisableKeys: Set<string> = new Set(["A", "B", "C", "D", "E", "F"]);
-    const octalDisableKeys: Set<string> = new Set(["8", "9", "A", "B", "C", "D", "E", "F"]);
-    const binaryDisableKeys: Set<string> = new Set(["2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "F"]);
+    const decimalDisableKeys: Set<string> = new Set([KEY.NUMA, KEY.NUMB, KEY.NUMC, KEY.NUMD, KEY.NUME, KEY.NUMF]);
+    const octalDisableKeys: Set<string> = new Set([KEY.NUM8, KEY.NUM9, KEY.NUMA, KEY.NUMB, KEY.NUMC, KEY.NUMD, KEY.NUME, KEY.NUMF]);
+    const binaryDisableKeys: Set<string> = new Set([KEY.NUM2, KEY.NUM3, KEY.NUM4, KEY.NUM5, KEY.NUM6, KEY.NUM7, KEY.NUM8, KEY.NUM9, KEY.NUMA, KEY.NUMB, KEY.NUMC, KEY.NUMD, KEY.NUMF]);
 
-    let disableKeys: Set<string> = decimalDisableKeys;
-
+    const [disableKeys, setDisableKeys] = useState<Set<string>>(decimalDisableKeys);
     const [selected, setSelected] = useState('DEC');
-    const [inputNum, setInputNum] = useState('0');
+    const [input, setInputNum] = useState('0');
     const [decimal, setDecimal] = useState(0);
     const [numberInput, setNumberInput] = useState(true);
 
     const handleSelect = (value: string) => {
         switch (value) {
             case 'HEX':
-                disableKeys = hexDisableKeys
+                setDisableKeys(hexDisableKeys);
                 break;
             case 'DEC':
-                disableKeys = decimalDisableKeys
+                setDisableKeys(decimalDisableKeys);
                 break;
             case 'OCT':
-                disableKeys = octalDisableKeys
+                setDisableKeys(octalDisableKeys);
                 break;
             case 'BIN':
-                disableKeys = binaryDisableKeys
+                setDisableKeys(binaryDisableKeys);
                 break;
         }
         setSelected(value);
     };
 
-    const calc = (value: string) => {
-        if (value === 'Clear') {
+    const calc = (value: KEY) => {
+        if (value === KEY.CLEAR) {
             setInputNum('');
             return;
         }
-        setInputNum(inputNum + value);
+        setInputNum(input + value);
     };
 
 
@@ -55,14 +63,12 @@ const Calculator = () => {
             <div className="h-full w-full flex flex-col">
                 <div className="grid grid-cols-6 gap-1 w-full h-full bg-gray-400">
                     {
-                        keys.map((group, row) => {
-                            return group.map((item, col) => {
-                                return (
-                                    <button key={row * 6 + col} className="rounded-sm h-full w-full flex flex-row items-center justify-center" onClick={() => calc(item)}>
-                                        <div className="rounded-sm h-full w-full flex items-center justify-center bg-gray-50">{item}</div>
-                                    </button>
-                                );
-                            })
+                        keyboard.map((item, index) => {
+                            return (
+                                <button key={index} disabled={disableKeys.has(item)} className="rounded-sm h-full w-full flex flex-row items-center justify-center" onClick={() => calc(item)}>
+                                    <div className="rounded-sm h-full w-full flex items-center justify-center bg-gray-50">{item}</div>
+                                </button>
+                            );
                         })
                     }
                 </div>
@@ -83,10 +89,10 @@ const Calculator = () => {
             <div className="h-full w-2/3 bg-blue-300">
                 <div className="w-full flex flex-col justify-center h-2/5 bg-gray-100">
                     <div className="w-full flex flex-col justify-center items-end h-3/6">
-                        <div className='w-full h-2/5 flex flex-col text-stone-400 justify-center items-end bg-red-100'>
-                            {inputNum}
+                        <div className='w-full h-2/5 flex flex-col text-stone-400 justify-center items-end p-5 bg-red-100'>
+                            {input}
                         </div>
-                        <div className='w-full h-3/5 flex flex-col text-6xl justify-center items-end bg-red-200'>
+                        <div className='w-full h-3/5 flex flex-col text-6xl justify-center items-end p-4 bg-red-200'>
                             {decimal}
                         </div>
                     </div>
@@ -96,8 +102,8 @@ const Calculator = () => {
                                 return (
                                     <button key={index} className="flex flex-row items-center w-full" onClick={() => handleSelect(item)}>
                                         <div className={`h-1/2 w-1 m-1 rounded-sm ${selected === item ? 'bg-blue-500' : ''}`}></div>
-                                        <div className="h-full w-fit m-1 flex items-center">{item}</div>
-                                        <div className="h-full w-max m-1 flex items-center">{inputNum}</div>
+                                        <div className="h-full w-10 m-1 flex items-center">{item}</div>
+                                        <div className="h-full w-max m-1 flex items-center">{input}</div>
                                     </button>
                                 );
                             })
@@ -128,7 +134,7 @@ const Calculator = () => {
                     </div>
                 </div>
             </div>
-            <div className="h-full w-1/3 bg-blue-100">
+            <div className="h-full w-80 bg-blue-100">
                 {/* Additional content */}
             </div>
         </div>
