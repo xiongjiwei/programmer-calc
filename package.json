@@ -6,8 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy": "gh-pages -d build"
   },
+  "homepage": "./",
   "dependencies": {
     "@nextui-org/react": "^2.2.9",
     "framer-motion": "^10.16.16",
